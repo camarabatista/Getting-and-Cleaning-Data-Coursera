@@ -1,100 +1,35 @@
+library(plyr)
 
-Code Book
+# Readind datasets on R
+X_train <- read.table("C:/Users/d835883/Downloads/UCI HAR Dataset/train/X_train.txt", sep = "")
+Y_train <- read.table("C:/Users/d835883/Downloads/UCI HAR Dataset/train/y_train.txt", sep = "")
+X_test <- read.table("C:/Users/d835883/Downloads/UCI HAR Dataset/test/X_test.txt", sep = "")
+Y_test <- read.table("C:/Users/d835883/Downloads/UCI HAR Dataset/test/y_test.txt", sep = "")
+trainSubject <- read.table("C:/Users/d835883/Downloads/UCI HAR Dataset/train/subject_train.txt", sep = "")
+testSubject <- read.table("C:/Users/d835883/Downloads/UCI HAR Dataset/test/subject_test.txt", sep = "")
+colnamesX <- read.table("C:/Users/d835883/Downloads/UCI HAR Dataset/features.txt", sep = "")
+activityLabels <- read.table("C:/Users/d835883/Downloads/UCI HAR Dataset/activity_labels.txt", sep = "")        
 
-This code book summarizes the resulting data fields in tidy.txt.
-Identifiers
+# naming columns as "id" to create a key variable to perform the join
+colnames(trainSubject) <- c("subjectid")
+colnames(testSubject) <- c("subjectid")
+colnames(activityLabels) <- c("activityid", "activity")
+colnames(Y_train) <- c("activityid")
+colnames(Y_test) <- c("activityid")
+colnamesX <- colnamesX[,2]
+colnames(X_train) <- colnamesX
+colnames(X_test) <- colnamesX
 
-    subject - The ID of the test subject
-    activity - The type of activity performed when the corresponding measurements were taken
+# Performing the joining on Y base
+Y_train <- join(Y_train, activityLabels, by = c("activityid"))
+Y_test <- join(Y_test, activityLabels, by = c("activityid"))
+X_train <- cbind(activity = Y_train$activity, X_train)  
+X_train <- cbind(subjectid = trainSubject$subjectid, X_train)  
+X_test <- cbind(activity = Y_test$activity, X_test) 
+X_test <- cbind(subjectid = testSubject$subjectid, X_test)
 
-Measurements
+# Creating the final dataset
+DF <- rbind(X_train, X_test) 
+View(DF)
 
-    tBodyAccMeanX
-    tBodyAccMeanY
-    tBodyAccMeanZ
-    tBodyAccStdX
-    tBodyAccStdY
-    tBodyAccStdZ
-    tGravityAccMeanX
-    tGravityAccMeanY
-    tGravityAccMeanZ
-    tGravityAccStdX
-    tGravityAccStdY
-    tGravityAccStdZ
-    tBodyAccJerkMeanX
-    tBodyAccJerkMeanY
-    tBodyAccJerkMeanZ
-    tBodyAccJerkStdX
-    tBodyAccJerkStdY
-    tBodyAccJerkStdZ
-    tBodyGyroMeanX
-    tBodyGyroMeanY
-    tBodyGyroMeanZ
-    tBodyGyroStdX
-    tBodyGyroStdY
-    tBodyGyroStdZ
-    tBodyGyroJerkMeanX
-    tBodyGyroJerkMeanY
-    tBodyGyroJerkMeanZ
-    tBodyGyroJerkStdX
-    tBodyGyroJerkStdY
-    tBodyGyroJerkStdZ
-    tBodyAccMagMean
-    tBodyAccMagStd
-    tGravityAccMagMean
-    tGravityAccMagStd
-    tBodyAccJerkMagMean
-    tBodyAccJerkMagStd
-    tBodyGyroMagMean
-    tBodyGyroMagStd
-    tBodyGyroJerkMagMean
-    tBodyGyroJerkMagStd
-    fBodyAccMeanX
-    fBodyAccMeanY
-    fBodyAccMeanZ
-    fBodyAccStdX
-    fBodyAccStdY
-    fBodyAccStdZ
-    fBodyAccMeanFreqX
-    fBodyAccMeanFreqY
-    fBodyAccMeanFreqZ
-    fBodyAccJerkMeanX
-    fBodyAccJerkMeanY
-    fBodyAccJerkMeanZ
-    fBodyAccJerkStdX
-    fBodyAccJerkStdY
-    fBodyAccJerkStdZ
-    fBodyAccJerkMeanFreqX
-    fBodyAccJerkMeanFreqY
-    fBodyAccJerkMeanFreqZ
-    fBodyGyroMeanX
-    fBodyGyroMeanY
-    fBodyGyroMeanZ
-    fBodyGyroStdX
-    fBodyGyroStdY
-    fBodyGyroStdZ
-    fBodyGyroMeanFreqX
-    fBodyGyroMeanFreqY
-    fBodyGyroMeanFreqZ
-    fBodyAccMagMean
-    fBodyAccMagStd
-    fBodyAccMagMeanFreq
-    fBodyBodyAccJerkMagMean
-    fBodyBodyAccJerkMagStd
-    fBodyBodyAccJerkMagMeanFreq
-    fBodyBodyGyroMagMean
-    fBodyBodyGyroMagStd
-    fBodyBodyGyroMagMeanFreq
-    fBodyBodyGyroJerkMagMean
-    fBodyBodyGyroJerkMagStd
-    fBodyBodyGyroJerkMagMeanFreq
-
-Activity Labels
-
-    WALKING (value 1): subject was walking during the test
-    WALKING_UPSTAIRS (value 2): subject was walking up a staircase during the test
-    WALKING_DOWNSTAIRS (value 3): subject was walking down a staircase during the test
-    SITTING (value 4): subject was sitting during the test
-    STANDING (value 5): subject was standing during the test
-    LAYING (value 6): subject was laying down during the test
-
+write.table(DF,"C:/Users/d835883/Downloads/DF.txt", row.name = FALSE)
